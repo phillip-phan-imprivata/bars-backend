@@ -2,11 +2,16 @@ from rest_framework.viewsets import ViewSet
 from rest_framework.response import Response
 from rest_framework import serializers
 from rest_framework import status
-from barsapi.models import Playlist
+from barsapi.models import Playlist, Song
 import os
 import googleapiclient.discovery
 
 api_key = "AIzaSyDiw-lKDm059fMzzY0lMYGvaEKwX1zJMb0"
+
+class SongSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Song
+        fields = ('id', 'song_link', 'title', 'channel',)
 
 class Songs(ViewSet):
     def list(self, request):
@@ -27,3 +32,16 @@ class Songs(ViewSet):
         response = api_request.execute()
 
         return Response(response)
+
+    def create(self, request):
+        new_song = Song()
+        new_song.song_link = request.data["songLink"]
+        new_song.title = request.data["title"]
+        new_song.channel = request.data["channel"]
+        new_song.save()
+
+        serializer = SongSerializer(
+            new_song, context={'request': request}
+        )
+
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
