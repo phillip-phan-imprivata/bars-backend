@@ -8,3 +8,4 @@ python manage.py loaddata users
 python manage.py loaddata tokens
 python manage.py loaddata barsusers
 python manage.py loaddata playlists
+python manage.py loaddata songs
