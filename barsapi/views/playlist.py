@@ -10,6 +10,12 @@ class PlaylistSerializer(serializers.ModelSerializer):
         model = Playlist
         fields = ('id', 'name', 'barsuser',)
 
+class PlaylistSongSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PlaylistSong
+        fields = ('id', 'song',)
+        depth = 1
+
 class Playlists(ViewSet):
     def list(self, request):
         barsuser = BarsUser.objects.get(user = request.auth.user)
@@ -43,6 +49,18 @@ class Playlists(ViewSet):
 
         except Exception as ex:
             return Response({'message': ex.args[0]}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    def retrieve(self, request, pk=None):
+        playlist = Playlist.objects.get(pk=pk)
+        playlist_songs = PlaylistSong.objects.filter(playlist=playlist)
+
+        serializer = PlaylistSongSerializer(
+            playlist_songs, many=True, context={'request': request}
+        )
+
+        return Response(serializer.data)
+
+
 
     @action(methods=['post', 'delete'], detail=True)
     def playlistsong(self, request, pk=None):

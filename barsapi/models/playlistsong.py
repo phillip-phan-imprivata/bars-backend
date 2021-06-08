@@ -4,5 +4,5 @@ from .playlist import Playlist
 from .song import Song
 
 class PlaylistSong(models.Model):
-    playlist = models.OneToOneField(Playlist, on_delete=CASCADE)
-    song = models.OneToOneField(Song, on_delete=CASCADE)
+    playlist = models.ForeignKey(Playlist, on_delete=CASCADE)
+    song = models.ForeignKey(Song, on_delete=CASCADE)
