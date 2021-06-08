@@ -2,7 +2,8 @@ from rest_framework.viewsets import ViewSet
 from rest_framework.response import Response
 from rest_framework import serializers
 from rest_framework import status
-from barsapi.models import Playlist, BarsUser
+from rest_framework.decorators import action
+from barsapi.models import Playlist, BarsUser, PlaylistSong, Song
 
 class PlaylistSerializer(serializers.ModelSerializer):
     class Meta:
@@ -39,7 +40,36 @@ class Playlists(ViewSet):
 
         except Playlist.DoesNotExist as ex:
             return Response({'message': ex.args[0]}, status=status.HTTP_404_NOT_FOUND)
-            
+
         except Exception as ex:
             return Response({'message': ex.args[0]}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+    @action(methods=['post', 'delete'], detail=True)
+    def playlistsong(self, request, pk=None):
+        if request.method == "POST":
+            playlistsong = PlaylistSong()
+            playlistsong.playlist = Playlist.objects.get(pk=pk)
+            playlistsong.song = Song.objects.get(pk=request.data["songId"])
+            playlistsong.save()
+
+            return Response(None, status=status.HTTP_204_NO_CONTENT)
+
+        if request.method == "DELETE":
+            try:
+                playlist = Playlist.objects.get(pk=pk)
+                song = Song.objects.get(pk=request.data['songId'])
+
+                playlistsong = PlaylistSong.objects.get(playlist=playlist, song=song)
+                playlistsong.delete()
+                return Response({}, status=status.HTTP_204_NO_CONTENT)
+            
+            except Playlist.DoesNotExist as ex:
+                return Response({'message': ex.args[0]}, status=status.HTTP_404_NOT_FOUND)
+
+            except Song.DoesNotExist as ex:
+                return Response({'message': ex.args[0]}, status=status.HTTP_404_NOT_FOUND)
+
+            except Exception as ex:
+                return Response({'message': ex.args[0]}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        return Response(None, status=status.HTTP_405_METHOD_NOT_ALLOWED)
