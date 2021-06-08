@@ -65,12 +65,23 @@ class Playlists(ViewSet):
     @action(methods=['post', 'delete'], detail=True)
     def playlistsong(self, request, pk=None):
         if request.method == "POST":
-            playlistsong = PlaylistSong()
-            playlistsong.playlist = Playlist.objects.get(pk=pk)
-            playlistsong.song = Song.objects.get(pk=request.data["songId"])
-            playlistsong.save()
+            playlist = Playlist.objects.get(pk=pk)
+            song = Song.objects.get(pk=request.data["songId"])
 
-            return Response(None, status=status.HTTP_204_NO_CONTENT)
+            try:
+                playlistsong = PlaylistSong.objects.get(playlist=playlist, song=song)
+                return Response(
+                    {'message': 'Song already added to this playlist.'},
+                    status=status.HTTP_422_UNPROCESSABLE_ENTITY
+                )
+
+            except PlaylistSong.DoesNotExist as ex:
+                playlistsong = PlaylistSong()
+                playlistsong.playlist = playlist
+                playlistsong.song = song
+                playlistsong.save()
+
+                return Response(None, status=status.HTTP_201_CREATED)
 
         if request.method == "DELETE":
             try:
