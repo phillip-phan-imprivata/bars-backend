@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework import status
 from rest_framework.authtoken.models import Token
-from barsapi.models import BarsUser, barsuser
+from barsapi.models import BarsUser
 
 
 @csrf_exempt

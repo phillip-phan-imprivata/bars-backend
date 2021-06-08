@@ -1,6 +1,6 @@
 #!/bin/bash
 
-rm -rf bangazonapi/migrations
+rm -rf barsapi/migrations
 rm db.sqlite3
 python manage.py makemigrations barsapi
 python manage.py migrate

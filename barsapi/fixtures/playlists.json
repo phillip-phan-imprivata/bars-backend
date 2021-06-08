@@ -22,6 +22,14 @@
             "name": "boi hours",
             "barsuser_id": 6
         }
+    },
+    {
+        "model": "barsapi.playlist",
+        "pk": 4,
+        "fields": {
+            "name": "gorl hours",
+            "barsuser_id": 6
+        }
     }
     ]
     

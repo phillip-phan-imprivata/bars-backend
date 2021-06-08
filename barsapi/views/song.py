@@ -8,7 +8,7 @@ import googleapiclient.discovery
 
 api_key = "AIzaSyDiw-lKDm059fMzzY0lMYGvaEKwX1zJMb0"
 
-class Song(ViewSet):
+class Songs(ViewSet):
     def list(self, request):
         os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
         
