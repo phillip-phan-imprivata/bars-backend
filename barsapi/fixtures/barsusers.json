@@ -1,0 +1,31 @@
+[
+    {
+        "model": "barsapi.barsuser",
+        "pk": 4,
+        "fields": {
+            "user": 5
+        }
+    },
+    {
+        "model": "barsapi.barsuser",
+        "pk": 5,
+        "fields": {
+            "user": 6
+        }
+    },
+    {
+        "model": "barsapi.barsuser",
+        "pk": 6,
+        "fields": {
+            "user": 7
+        }
+    },
+    {
+        "model": "barsapi.barsuser",
+        "pk": 7,
+        "fields": {
+            "user": 8
+        }
+    }
+    ]
+    

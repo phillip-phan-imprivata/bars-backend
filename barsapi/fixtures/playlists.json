@@ -1,0 +1,27 @@
+[
+    {
+        "model": "barsapi.playlist",
+        "pk": 1,
+        "fields": {
+            "name": "sad boi hours",
+            "barsuser_id": 7
+        }
+    },
+    {
+        "model": "barsapi.playlist",
+        "pk": 2,
+        "fields": {
+            "name": "happpy boi hours",
+            "barsuser_id": 5
+        }
+    },
+    {
+        "model": "barsapi.playlist",
+        "pk": 3,
+        "fields": {
+            "name": "boi hours",
+            "barsuser_id": 6
+        }
+    }
+    ]
+    
