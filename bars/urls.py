@@ -25,7 +25,8 @@ from barsapi.views import *
 
 # pylint: disable=invalid-name
 router = routers.DefaultRouter(trailing_slash=False)
-router.register(r'songs', Song, 'song')
+router.register(r'songs', Songs, 'song')
+router.register(r'playlists', Playlists, 'playlist')
 
 # Wire up our API using automatic URL routing.
 # Additionally, we include login URLs for the browsable API.
