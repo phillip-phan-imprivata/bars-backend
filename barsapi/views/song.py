@@ -31,7 +31,7 @@ class Songs(ViewSet):
         )
         response = api_request.execute()
 
-        return Response(response)
+        return Response(response["items"])
 
     def create(self, request):
         new_song = Song()
