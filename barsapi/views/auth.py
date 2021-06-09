@@ -1,37 +1,34 @@
-"""Register user"""
 import json
-from django.http import HttpResponse, HttpResponseNotAllowed
-from django.contrib.auth import authenticate
+from django.http import HttpResponse
+from django.contrib.auth import login, authenticate
 from django.contrib.auth.models import User
-from django.views.decorators.csrf import csrf_exempt
-from rest_framework import status
 from rest_framework.authtoken.models import Token
+from django.views.decorators.csrf import csrf_exempt
 from barsapi.models import BarsUser
-
+from rest_framework import status
 
 @csrf_exempt
 def login_user(request):
-    '''Handles the authentication of a user
+    '''Handles the authentication of a barsuser
 
     Method arguments:
       request -- The full HTTP request object
     '''
 
-    body = request.body.decode('utf-8')
-    req_body = json.loads(body)
+    req_body = json.loads(request.body.decode())
 
     # If the request is a HTTP POST, try to pull out the relevant information.
     if request.method == 'POST':
 
         # Use the built-in authenticate method to verify
-        name = req_body['username']
-        pass_word = req_body['password']
-        authenticated_user = authenticate(username=name, password=pass_word)
+        username = req_body['username']
+        password = req_body['password']
+        authenticated_user = authenticate(username=username, password=password)
 
         # If authentication was successful, respond with their token
         if authenticated_user is not None:
             token = Token.objects.get(user=authenticated_user)
-            data = json.dumps({"valid": True, "token": token.key, "id": authenticated_user.id})
+            data = json.dumps({"valid": True, "token": token.key})
             return HttpResponse(data, content_type='application/json')
 
         else:
@@ -39,12 +36,10 @@ def login_user(request):
             data = json.dumps({"valid": False})
             return HttpResponse(data, content_type='application/json')
 
-    return HttpResponseNotAllowed(permitted_methods=['POST'])
-
 
 @csrf_exempt
 def register_user(request):
-    '''Handles the creation of a new user for authentication
+    '''Handles the creation of a new barsuser for authentication
 
     Method arguments:
       request -- The full HTTP request object
@@ -63,9 +58,8 @@ def register_user(request):
         last_name=req_body['last_name']
     )
 
+    # Now save the extra info in the barsapi_barsuser table
     barsuser = BarsUser.objects.create(
-        phone_number=req_body['phone_number'],
-        address=req_body['address'],
         user=new_user
     )
 
@@ -76,5 +70,5 @@ def register_user(request):
     token = Token.objects.create(user=new_user)
 
     # Return the token to the client
-    data = json.dumps({"token": token.key, "id": new_user.id})
+    data = json.dumps({"token": token.key})
     return HttpResponse(data, content_type='application/json', status=status.HTTP_201_CREATED)
