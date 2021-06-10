@@ -60,7 +60,17 @@ class Playlists(ViewSet):
 
         return Response(serializer.data)
 
+    def create(self, request):
+        barsuser = BarsUser.objects.get(user=request.auth.user)
+        new_playlist = Playlist()
+        new_playlist.name = request.data["name"]
+        new_playlist.barsuser = barsuser
+        new_playlist.save()
 
+        serializer = PlaylistSerializer(
+            new_playlist, many=False, context={'request': request}
+        )
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     @action(methods=['post', 'delete'], detail=True)
     def playlistsong(self, request, pk=None):
