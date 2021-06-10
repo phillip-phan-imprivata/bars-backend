@@ -20,7 +20,7 @@ class Songs(ViewSet):
         api_service_name = "youtube"
         api_version = "v3"
         DEVELOPER_KEY = api_key
-        search_query = request.data["search"]
+        search_query = self.request.query_params.get('search', None)
 
         youtube = googleapiclient.discovery.build(
             api_service_name, api_version, developerKey = DEVELOPER_KEY)
@@ -31,7 +31,12 @@ class Songs(ViewSet):
         )
         response = api_request.execute()
 
-        return Response(response["items"])
+        search_results = []
+        for item in response["items"]:
+            if item["id"]["kind"] == "youtube#video":
+                search_results.append(item)
+
+        return Response(search_results)
 
     def create(self, request):
         new_song = Song()
