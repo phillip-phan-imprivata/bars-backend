@@ -27,7 +27,8 @@ class Songs(ViewSet):
 
         api_request = youtube.search().list(
             part="snippet",
-            q=search_query
+            q=search_query,
+            maxResults=10
         )
         response = api_request.execute()
 
