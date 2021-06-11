@@ -9,3 +9,4 @@ python manage.py loaddata tokens
 python manage.py loaddata barsusers
 python manage.py loaddata playlists
 python manage.py loaddata songs
+python manage.py loaddata playlistsongs

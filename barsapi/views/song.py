@@ -8,11 +8,6 @@ import googleapiclient.discovery
 
 api_key = "AIzaSyDiw-lKDm059fMzzY0lMYGvaEKwX1zJMb0"
 
-class SongSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Song
-        fields = ('id', 'song_link', 'title', 'channel',)
-
 class Songs(ViewSet):
     def list(self, request):
         os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
@@ -28,7 +23,7 @@ class Songs(ViewSet):
         api_request = youtube.search().list(
             part="snippet",
             q=search_query,
-            maxResults=10
+            maxResults=10,
         )
         response = api_request.execute()
 
@@ -38,16 +33,3 @@ class Songs(ViewSet):
                 search_results.append(item)
 
         return Response(search_results)
-
-    def create(self, request):
-        new_song = Song()
-        new_song.song_link = request.data["songLink"]
-        new_song.title = request.data["title"]
-        new_song.channel = request.data["channel"]
-        new_song.save()
-
-        serializer = SongSerializer(
-            new_song, context={'request': request}
-        )
-
-        return Response(serializer.data, status=status.HTTP_201_CREATED)

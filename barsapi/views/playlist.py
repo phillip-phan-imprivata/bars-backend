@@ -72,18 +72,34 @@ class Playlists(ViewSet):
         )
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-    @action(methods=['post', 'delete'], detail=True)
-    def playlistsong(self, request, pk=None):
+    @action(methods=['post', 'delete'], detail=False)
+    def playlistsong(self, request):
         if request.method == "POST":
-            playlist = Playlist.objects.get(pk=pk)
-            song = Song.objects.get(pk=request.data["songId"])
+            playlist = Playlist.objects.get(pk=request.data["playlistId"])
 
             try:
+                song = Song.objects.get(song_link=request.data["songLink"])
                 playlistsong = PlaylistSong.objects.get(playlist=playlist, song=song)
+                
                 return Response(
                     {'message': 'Song already added to this playlist.'},
                     status=status.HTTP_422_UNPROCESSABLE_ENTITY
                 )
+
+            except Song.DoesNotExist as ex:
+                song = Song()
+                song.song_link = request.data["songLink"]
+                song.title = request.data["title"]
+                song.channel = request.data["channel"]
+                song.thumbnail = request.data["thumbnail"]
+                song.save()
+
+                playlistsong = PlaylistSong()
+                playlistsong.playlist = playlist
+                playlistsong.song = song
+                playlistsong.save()
+
+                return Response(None, status=status.HTTP_201_CREATED)
 
             except PlaylistSong.DoesNotExist as ex:
                 playlistsong = PlaylistSong()
@@ -95,12 +111,20 @@ class Playlists(ViewSet):
 
         if request.method == "DELETE":
             try:
-                playlist = Playlist.objects.get(pk=pk)
+                playlist = Playlist.objects.get(pk=request.data["playlistId"])
                 song = Song.objects.get(pk=request.data['songId'])
 
                 playlistsong = PlaylistSong.objects.get(playlist=playlist, song=song)
                 playlistsong.delete()
-                return Response({}, status=status.HTTP_204_NO_CONTENT)
+
+                try:
+                    playlistsongs = PlaylistSong.objects.filter(song=song)
+                    if len(playlistsongs) == 0:
+                        song.delete()                   
+                    return Response({}, status=status.HTTP_204_NO_CONTENT)
+                
+                except Exception as ex:
+                    return Response({}, status=status.HTTP_204_NO_CONTENT)
             
             except Playlist.DoesNotExist as ex:
                 return Response({'message': ex.args[0]}, status=status.HTTP_404_NOT_FOUND)

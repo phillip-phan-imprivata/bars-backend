@@ -1,0 +1,26 @@
+[
+    {
+        "model": "barsapi.playlistsong",
+        "pk": 1,
+        "fields": {
+            "playlist": 3,
+            "song": 1
+        }
+    },
+    {
+        "model": "barsapi.playlistsong",
+        "pk": 2,
+        "fields": {
+            "playlist": 3,
+            "song": 2
+        }
+    },
+    {
+        "model": "barsapi.playlistsong",
+        "pk": 3,
+        "fields": {
+            "playlist": 4,
+            "song": 2
+        }
+    }
+]
