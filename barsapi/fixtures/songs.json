@@ -5,7 +5,8 @@
         "fields": {
             "song_link": "_jZuz3NEr18",
             "channel": "Kanye West - Topic",
-            "title": "I'm In It"
+            "title": "I'm In It",
+            "thumbnail": "https://i.ytimg.com/vi/_jZuz3NEr18/default.jpg"
         }
     },
     {
@@ -14,7 +15,8 @@
         "fields": {
             "song_link": "2ow-9oyca40",
             "channel": "Trippie Redd",
-            "title": "Trippie Redd – Miss The Rage ft. Playboi Carti (Official Music Video)"
+            "title": "Trippie Redd – Miss The Rage ft. Playboi Carti (Official Music Video)",
+            "thumbnail": "https://i.ytimg.com/vi/2ow-9oyca40/default.jpg"
         }
     }
 ]
