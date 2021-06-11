@@ -8,11 +8,6 @@ import googleapiclient.discovery
 
 api_key = "AIzaSyDiw-lKDm059fMzzY0lMYGvaEKwX1zJMb0"
 
-class SongSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Song
-        fields = ('id', 'song_link', 'title', 'channel', 'thumbnail')
-
 class Songs(ViewSet):
     def list(self, request):
         os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
