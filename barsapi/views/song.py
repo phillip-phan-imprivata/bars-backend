@@ -24,6 +24,8 @@ class Songs(ViewSet):
             part="snippet",
             q=search_query,
             maxResults=10,
+            type="video",
+            videoCategoryId="10",
         )
         response = api_request.execute()
 
