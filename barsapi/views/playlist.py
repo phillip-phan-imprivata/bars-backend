@@ -5,16 +5,23 @@ from rest_framework import status
 from rest_framework.decorators import action
 from barsapi.models import Playlist, BarsUser, PlaylistSong, Song
 
-class PlaylistSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Playlist
-        fields = ('id', 'name', 'barsuser',)
-
 class PlaylistSongSerializer(serializers.ModelSerializer):
     class Meta:
         model = PlaylistSong
         fields = ('id', 'song', 'playlist')
         depth = 1
+
+class PlaylistWithSongsSerializer(serializers.ModelSerializer):
+    songs = PlaylistSongSerializer(many=True)
+
+    class Meta:
+        model = Playlist
+        fields = ('id', 'name', 'barsuser', 'songs')
+
+class PlaylistSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Playlist
+        fields = ('id', 'name', 'barsuser',)
 
 class Playlists(ViewSet):
     def list(self, request):
@@ -52,10 +59,10 @@ class Playlists(ViewSet):
 
     def retrieve(self, request, pk=None):
         playlist = Playlist.objects.get(pk=pk)
-        playlist_songs = PlaylistSong.objects.filter(playlist=playlist)
+        playlist.songs = PlaylistSong.objects.filter(playlist=playlist)
 
-        serializer = PlaylistSongSerializer(
-            playlist_songs, many=True, context={'request': request}
+        serializer = PlaylistWithSongsSerializer(
+            playlist, many=False, context={'request': request}
         )
 
         return Response(serializer.data)
