@@ -3,12 +3,12 @@ from rest_framework.response import Response
 from rest_framework import serializers
 from rest_framework import status
 from rest_framework.decorators import action
-from barsapi.models import Playlist, BarsUser, PlaylistSong, Song
+from barsapi.models import Playlist, BarsUser, PlaylistSong, Song, barsuser
 
 class PlaylistSongSerializer(serializers.ModelSerializer):
     class Meta:
         model = PlaylistSong
-        fields = ('id', 'song', 'playlist')
+        fields = ('id', 'song',)
         depth = 1
 
 class PlaylistWithSongsSerializer(serializers.ModelSerializer):
@@ -16,7 +16,7 @@ class PlaylistWithSongsSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Playlist
-        fields = ('id', 'name', 'barsuser', 'songs')
+        fields = ('id', 'name', 'barsuser', 'songs',)
 
 class PlaylistSerializer(serializers.ModelSerializer):
     class Meta:
@@ -58,14 +58,18 @@ class Playlists(ViewSet):
             return Response({'message': ex.args[0]}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def retrieve(self, request, pk=None):
-        playlist = Playlist.objects.get(pk=pk)
-        playlist.songs = PlaylistSong.objects.filter(playlist=playlist)
+        try:
+            barsuser = BarsUser.objects.get(user=request.auth.user)
+            playlist = Playlist.objects.get(pk=pk, barsuser=barsuser)
+            playlist.songs = PlaylistSong.objects.filter(playlist=playlist)
 
-        serializer = PlaylistWithSongsSerializer(
-            playlist, many=False, context={'request': request}
-        )
+            serializer = PlaylistWithSongsSerializer(
+                playlist, many=False, context={'request': request}
+            )
+            return Response(serializer.data)
 
-        return Response(serializer.data)
+        except Playlist.DoesNotExist as ex:
+            return Response({'message': ex.args[0]}, status=status.HTTP_404_NOT_FOUND)
 
     def create(self, request):
         barsuser = BarsUser.objects.get(user=request.auth.user)
@@ -82,43 +86,49 @@ class Playlists(ViewSet):
     @action(methods=['post', 'delete'], detail=False)
     def playlistsong(self, request):
         if request.method == "POST":
-            playlist = Playlist.objects.get(pk=request.data["playlistId"])
-
+            barsuser = BarsUser.objects.get(user=request.auth.user)
             try:
-                song = Song.objects.get(song_link=request.data["songLink"])
-                playlistsong = PlaylistSong.objects.get(playlist=playlist, song=song)
-                
-                return Response(
-                    {'message': 'Song already added to this playlist.'},
-                    status=status.HTTP_422_UNPROCESSABLE_ENTITY
-                )
+                playlist = Playlist.objects.get(pk=request.data["playlistId"], barsuser=barsuser)
 
-            except Song.DoesNotExist as ex:
-                song = Song()
-                song.song_link = request.data["songLink"]
-                song.title = request.data["title"]
-                song.channel = request.data["channel"]
-                song.thumbnail = request.data["thumbnail"]
-                song.save()
+                try:
+                    song = Song.objects.get(song_link=request.data["songLink"])
+                    playlistsong = PlaylistSong.objects.get(playlist=playlist, song=song)
+                    
+                    return Response(
+                        {'message': 'Song already added to this playlist.'},
+                        status=status.HTTP_422_UNPROCESSABLE_ENTITY
+                    )
 
-                playlistsong = PlaylistSong()
-                playlistsong.playlist = playlist
-                playlistsong.song = song
-                playlistsong.save()
+                except Song.DoesNotExist as ex:
+                    song = Song()
+                    song.song_link = request.data["songLink"]
+                    song.title = request.data["title"]
+                    song.channel = request.data["channel"]
+                    song.thumbnail = request.data["thumbnail"]
+                    song.save()
 
-                return Response(None, status=status.HTTP_201_CREATED)
+                    playlistsong = PlaylistSong()
+                    playlistsong.playlist = playlist
+                    playlistsong.song = song
+                    playlistsong.save()
 
-            except PlaylistSong.DoesNotExist as ex:
-                playlistsong = PlaylistSong()
-                playlistsong.playlist = playlist
-                playlistsong.song = song
-                playlistsong.save()
+                    return Response(None, status=status.HTTP_201_CREATED)
 
-                return Response(None, status=status.HTTP_201_CREATED)
+                except PlaylistSong.DoesNotExist as ex:
+                    playlistsong = PlaylistSong()
+                    playlistsong.playlist = playlist
+                    playlistsong.song = song
+                    playlistsong.save()
+
+                    return Response(None, status=status.HTTP_201_CREATED)
+            
+            except Playlist.DoesNotExist as ex:
+                return Response({'message': ex.args[0]}, status=status.HTTP_404_NOT_FOUND)
 
         if request.method == "DELETE":
             try:
-                playlist = Playlist.objects.get(pk=request.data["playlistId"])
+                barsuser = BarsUser.objects.get(user=request.auth.user)
+                playlist = Playlist.objects.get(pk=request.data["playlistId"], barsuser=barsuser)
                 song = Song.objects.get(pk=request.data['songId'])
 
                 playlistsong = PlaylistSong.objects.get(playlist=playlist, song=song)
