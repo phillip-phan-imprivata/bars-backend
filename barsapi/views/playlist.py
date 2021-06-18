@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework import serializers
 from rest_framework import status
 from rest_framework.decorators import action
-from barsapi.models import Playlist, BarsUser, PlaylistSong, Song, barsuser
+from barsapi.models import Playlist, BarsUser, PlaylistSong, Song
 
 class PlaylistSongSerializer(serializers.ModelSerializer):
     class Meta:
