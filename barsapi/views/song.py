@@ -5,16 +5,18 @@ from rest_framework import status
 from barsapi.models import Playlist, Song
 import os
 import googleapiclient.discovery
-
-api_key = "AIzaSyDiw-lKDm059fMzzY0lMYGvaEKwX1zJMb0"
+import environ
 
 class Songs(ViewSet):
     def list(self, request):
+        env = environ.Env()
+        environ.Env.read_env()
+
         os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
         
         api_service_name = "youtube"
         api_version = "v3"
-        DEVELOPER_KEY = api_key
+        DEVELOPER_KEY = env('DEVELOPER_KEY')
         search_query = self.request.query_params.get('search', None)
 
         youtube = googleapiclient.discovery.build(
