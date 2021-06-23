@@ -27,8 +27,11 @@ class Playlists(ViewSet):
     def list(self, request):
         barsuser = BarsUser.objects.get(user = request.auth.user)
         playlists = Playlist.objects.filter(barsuser = barsuser)
+        for playlist in playlists:
+            playlist.songs = PlaylistSong.objects.filter(playlist=playlist)
 
-        serializer = PlaylistSerializer(
+
+        serializer = PlaylistWithSongsSerializer(
             playlists, many=True, context={'request': request}
         )
 
